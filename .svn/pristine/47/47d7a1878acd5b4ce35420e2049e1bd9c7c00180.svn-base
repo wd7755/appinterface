@@ -1,0 +1,70 @@
+package cn.yunlianhui.appinterface;
+
+import java.sql.ResultSet;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.json.JSONObject;
+
+public class TestLogin {	
+	private Utils utils;
+	private String token ="";
+	private String m_id = "ylhadmin";
+	
+   @BeforeClass
+   public static void setUpBeforeClass() throws Exception{	 	  
+   }
+   
+   @AfterClass
+   public static void tearDownAfterClass() throws Exception{		   
+   }	   
+   
+   @Before
+   public void setUp() throws Exception {
+	   utils = new Utils();
+   }
+	
+   @After
+   public void tearDown() throws Exception {       
+	   utils = null;
+   }	
+   @Test
+   //登录测试
+   public void testLogin() throws Exception{		  
+       JSONObject j = new JSONObject(); 
+	   j.put(UrlConstants.MODULE, "Login");    	   
+	   j.put(UrlConstants.M_ID, m_id);     	  
+	   j.put(UrlConstants.TYPE, 0);  
+	   j.put(UrlConstants.TOKEN, token);
+	   j.put(UrlConstants.PWD, "000000");  		   
+	  
+	   //对原始请求参数加密
+	   String parameters = AESUtil.Encrypt(j.toString());
+   	   //执行Post方法并返回字符创格式的响应结果
+       String value = utils.getResponse(parameters);     
+      
+       //解密
+       String resString = AESUtil.Decrypt(value);   
+       // 使用返回的字符串直接构造一个JSONObject       
+       JSONObject jsonobj = new JSONObject(resString.trim());  
+       String m_uid = jsonobj.getString("err");
+       int m_id = jsonobj.getInt("now");
+       String m_class = jsonobj.getString("token");
+       System.out.println(m_uid);
+       System.out.println(m_id);
+       System.out.println(m_class);
+       /*  
+       ResultSet rs = OperationDB.getResultSet("Select m_uid,m_class From member_base_file Where m_id=?", new String[]{m_id});
+             
+       String m_uid = rs.getString(1);
+       String m_class = rs.getString(2);
+       
+       Assert.assertEquals(m_id, jsonobj.getString("m_id"));	
+       Assert.assertEquals(m_uid, jsonobj.getString("m_uid"));	
+       Assert.assertEquals(m_class, jsonobj.getString("m_class"));	
+       */      
+   } 
+}
